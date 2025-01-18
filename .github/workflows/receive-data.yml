@@ -1,0 +1,26 @@
+name: Receive Data
+
+on:
+  repository_dispatch:
+    types: [update-data]
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Update index.html
+        run: |
+          echo '<!DOCTYPE html><html><head><title>My Data</title></head><body><div id="my-data" style="display:none;">${{ toJson(github.event.client_payload) }}</div></body></html>' > index.html
+      
+      - name: Commit changes
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions@github.com'
+          git add index.html
+          git commit -m "Update data"
+          git push
